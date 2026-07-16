@@ -1,0 +1,116 @@
+/* ── Dynamic Background ── */
+.app-bg-orbs {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.4;
+  animation: float 20s infinite ease-in-out alternate;
+}
+.orb-1 {
+  width: 500px; height: 500px;
+  background: rgba(124, 58, 237, 0.3);
+  top: -100px; left: -100px;
+}
+.orb-2 {
+  width: 400px; height: 400px;
+  background: rgba(6, 182, 212, 0.2);
+  bottom: -100px; right: -50px;
+  animation-delay: -5s;
+}
+.orb-3 {
+  width: 300px; height: 300px;
+  background: rgba(236, 72, 153, 0.2);
+  top: 40%; left: 60%;
+  animation-delay: -10s;
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(50px, 50px) scale(1.1); }
+}
+
+/* ── Typography & Gradients ── */
+.text-gradient {
+  background: linear-gradient(270deg, #A855F7, #06B6D4, #EC4899, #A855F7) !important;
+  background-size: 300% 300% !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  animation: gradientFlow 6s ease infinite !important;
+}
+
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Sidebar Floating Pill Upgrade ── */
+.sidebar {
+  position: fixed !important;
+  top: var(--space-md) !important;
+  bottom: var(--space-md) !important;
+  left: var(--space-md) !important;
+  height: calc(100vh - (var(--space-md) * 2)) !important;
+  border-radius: var(--radius-xl) !important;
+  border: 1px solid var(--glass-border) !important;
+  backdrop-filter: blur(24px) !important;
+  box-shadow: var(--shadow) !important;
+  background: var(--glass) !important;
+}
+
+.main-content {
+  margin-left: calc(var(--sidebar-width) + var(--space-md) + var(--space-lg)) !important;
+  width: calc(100% - var(--sidebar-width) - var(--space-md) - var(--space-lg)) !important;
+}
+.sidebar.collapsed ~ .main-content {
+  margin-left: calc(var(--sidebar-collapsed) + var(--space-md) + var(--space-lg)) !important;
+  width: calc(100% - var(--sidebar-collapsed) - var(--space-md) - var(--space-lg)) !important;
+}
+
+/* ── Card Lift Upgrade ── */
+.card {
+  backdrop-filter: blur(16px) !important;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.2), 0 0 30px rgba(124,58,237,0.3) !important;
+  border-color: rgba(255,255,255,0.2) !important;
+}
+.card:hover::before {
+  opacity: 1;
+}
+
+/* ── Primary Button Glow ── */
+.btn-primary {
+  background: linear-gradient(135deg, #7C3AED, #EC4899) !important;
+  border: none !important;
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4) !important;
+  transition: all 0.3s ease !important;
+}
+.btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.5) !important;
+  transform: translateY(-2px) !important;
+}
+.btn-primary:active {
+  transform: translateY(0) !important;
+}

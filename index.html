@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>CareerMind AI — Your 24/7 Career Mentor</title>
+  <meta name="description" content="CareerMind AI is your intelligent 24/7 career mentor. Analyze your resume, bridge skill gaps, ace mock interviews, and build the career you deserve."/>
+  <meta name="theme-color" content="#080818"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="CareerMind AI"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta property="og:title" content="CareerMind AI — Your 24/7 Career Mentor"/>
+  <meta property="og:description" content="AI-powered career mentor with resume analysis, mock interviews, skill gap analysis, and more."/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>"/>
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%237C3AED'/><text y='.85em' font-size='70' x='15'>🧠</text></svg>"/>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="advanced.css">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- Firebase SDK (compat version - works without build tools) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+</head>
+<body>
+
+<!-- Dynamic Background Orbs -->
+<div class="app-bg-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- ════════════════════════════════════
+     AUTH SCREEN (Firebase)
+════════════════════════════════════ -->
+<div id="auth-screen" style="display:flex;flex-direction:column;height:100vh;position:relative;z-index:10;padding:20px var(--space-md);overflow-y:auto;box-sizing:border-box;">
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+
+  <div style="width:100%;max-width:440px;margin:auto;animation:slideUp 0.5s cubic-bezier(0.4,0,0.2,1); flex-shrink:0;">
+
+    <!-- Logo -->
+    <div style="text-align:center;margin-bottom:var(--space-xl)">
+      <div style="font-size:56px;margin-bottom:var(--space-sm)">🧠</div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:800;">
+        CareerMind <span class="text-gradient">AI</span>
+      </div>
+      <div style="font-size:14px;color:var(--text-muted);margin-top:4px">Your 24/7 AI Career Mentor</div>
+    </div>
+
+    <div class="card card-glow" style="padding:var(--space-xl)">
+
+      <!-- Tabs -->
+      <div style="display:flex;background:var(--bg-elevated);border-radius:var(--radius-md);padding:4px;margin-bottom:var(--space-xl);">
+        <button id="auth-tab-login" onclick="AuthUI.switchTab('login')"
+          style="flex:1;padding:10px;border-radius:var(--radius-sm);border:none;font-weight:700;font-size:14px;cursor:pointer;
+          background:var(--primary);color:#fff;transition:var(--transition-fast);">
+          Sign In
+        </button>
+        <button id="auth-tab-signup" onclick="AuthUI.switchTab('signup')"
+          style="flex:1;padding:10px;border-radius:var(--radius-sm);border:none;font-weight:700;font-size:14px;cursor:pointer;
+          background:transparent;color:var(--text-muted);transition:var(--transition-fast);">
+          Create Account
+        </button>
+      </div>
+
+      <!-- Google Sign In -->
+      <button id="auth-google-btn" onclick="AuthUI.googleSignIn()"
+        style="width:100%;display:flex;align-items:center;justify-content:center;gap:12px;padding:12px;
+        background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);
+        font-size:15px;font-weight:600;color:var(--text-primary);cursor:pointer;
+        transition:var(--transition-fast);margin-bottom:var(--space-md);"
+        onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">
+        <svg width="20" height="20" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Continue with Google
+      </button>
+
+      <div style="display:flex;align-items:center;gap:var(--space-sm);margin-bottom:var(--space-md)">
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+        <span style="font-size:12px;color:var(--text-muted)">or</span>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+      </div>
+
+      <!-- Error banner -->
+      <div id="auth-error" style="display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);
+        border-radius:var(--radius-md);padding:10px var(--space-md);font-size:13px;color:var(--danger);
+        margin-bottom:var(--space-md);"></div>
+
+      <!-- LOGIN FORM -->
+      <div id="auth-login-form">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input id="login-email" type="email" class="form-control" placeholder="you@example.com" autocomplete="email"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input id="login-password" type="password" class="form-control" placeholder="Your password" autocomplete="current-password"/>
+        </div>
+        <button class="btn btn-primary btn-block btn-lg" id="login-btn" onclick="AuthUI.login()" style="margin-bottom:var(--space-sm)">
+          Sign In to CareerMind
+        </button>
+        <div style="text-align:center">
+          <a href="#" onclick="AuthUI.forgotPassword()" style="font-size:13px;color:var(--accent);text-decoration:none;">Forgot password?</a>
+        </div>
+      </div>
+
+      <!-- SIGNUP FORM -->
+      <div id="auth-signup-form" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input id="signup-name" type="text" class="form-control" placeholder="Your name" autocomplete="name"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input id="signup-email" type="email" class="form-control" placeholder="you@example.com" autocomplete="email"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input id="signup-password" type="password" class="form-control" placeholder="At least 6 characters" autocomplete="new-password"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Role</label>
+          <select id="signup-role" class="form-control">
+            <option value="sde">Software Development Engineer (SDE)</option>
+            <option value="web">Web Developer (Frontend/Fullstack)</option>
+            <option value="data">Data Analyst</option>
+            <option value="cloud">Cloud Engineer</option>
+            <option value="ai">AI / ML Engineer</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:var(--space-lg)">
+          <label class="form-label">Experience Level</label>
+          <select id="signup-exp" class="form-control">
+            <option value="beginner">Beginner (0–1 years)</option>
+            <option value="intermediate">Intermediate (1–3 years)</option>
+            <option value="experienced">Experienced (3+ years)</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-block btn-lg" id="signup-btn" onclick="AuthUI.signup()">
+          Create My Account 🚀
+        </button>
+      </div>
+
+    </div><!-- /card -->
+
+    <!-- Features preview -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:var(--space-lg);">
+      <div style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.15);border-radius:var(--radius-md);padding:10px 12px;font-size:12px;color:var(--text-secondary)">
+        📄 Resume Analyzer + ATS Score
+      </div>
+      <div style="background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.15);border-radius:var(--radius-md);padding:10px 12px;font-size:12px;color:var(--text-secondary)">
+        🎤 AI Mock Interviews
+      </div>
+      <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);border-radius:var(--radius-md);padding:10px 12px;font-size:12px;color:var(--text-secondary)">
+        🗺️ Personalized Roadmap
+      </div>
+      <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.15);border-radius:var(--radius-md);padding:10px 12px;font-size:12px;color:var(--text-secondary)">
+        🧪 Weekly Skill Tests
+      </div>
+    </div>
+  </div>
+</div><!-- /auth-screen -->
+
+<!-- ════════════════════════════════════
+     LOADING SCREEN (while Firebase checks auth)
+════════════════════════════════════ -->
+<div id="loading-screen" style="display:none;position:fixed;inset:0;background:var(--bg-base);z-index:50;align-items:center;justify-content:center;flex-direction:column;gap:var(--space-md)">
+  <div style="font-size:48px">🧠</div>
+  <div class="spinner" style="width:32px;height:32px"></div>
+  <div style="font-size:14px;color:var(--text-muted)">Loading your profile...</div>
+</div>
+<!-- ════════════════════════════════════
+     ONBOARDING FLOW
+════════════════════════════════════ -->
+<div id="onboarding" class="hidden">
+  <div class="onboarding-bg"></div>
+  <div class="onboarding-card">
+    <div class="onboarding-logo">
+      <div class="onboarding-logo-icon">🧠</div>
+      <span class="sidebar-brand">CareerMind AI</span>
+    </div>
+
+    <!-- Step 2: Profile -->
+    <div class="onboarding-step active" id="step-2">
+      <h2>Tell us about yourself 👋</h2>
+      <p>We'll personalize everything — study plans, tests, projects — just for you.</p>
+      <div class="form-group">
+        <label class="form-label">Your Name</label>
+        <input id="ob-name" type="text" class="form-control" placeholder="e.g. Ayush Sharma"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Target Role</label>
+        <select id="ob-role" class="form-control">
+          <option value="">— Choose your target —</option>
+          <option value="sde">Software Development Engineer (SDE)</option>
+          <option value="web">Web Developer (Frontend/Fullstack)</option>
+          <option value="data">Data Analyst</option>
+          <option value="cloud">Cloud Engineer</option>
+          <option value="ai">AI / ML Engineer</option>
+          <option value="custom">Custom Role</option>
+        </select>
+      </div>
+      <div class="form-group" id="ob-custom-role-group" style="display:none">
+        <label class="form-label">Specify Your Role</label>
+        <input id="ob-custom-role" type="text" class="form-control" placeholder="e.g. DevOps Engineer"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Experience Level</label>
+        <select id="ob-exp" class="form-control">
+          <option value="beginner">Beginner (0–1 year)</option>
+          <option value="intermediate">Intermediate (1–3 years)</option>
+          <option value="advanced">Advanced (3+ years)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Current Status & Goal</label>
+        <select id="ob-goal" class="form-control">
+          <option value="student">🎓 Student seeking first job</option>
+          <option value="unemployed">🔍 Actively looking for a job</option>
+          <option value="upskill">🔄 Currently employed, looking to upskill & switch careers</option>
+          <option value="grow">📈 Currently employed, looking to grow in current role</option>
+        </select>
+      </div>
+      <div style="margin-top:var(--space-lg);">
+        <button class="btn btn-primary btn-block btn-lg" id="ob-launch-btn" onclick="CareerMind.onboarding.launch()">🚀 Launch CareerMind</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     MAIN APP
+════════════════════════════════════ -->
+<div id="app" class="hidden">
+
+  <!-- Mobile Sidebar Backdrop -->
+  <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="CareerMind.toggleSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo-icon">🧠</div>
+      <span class="sidebar-brand">CareerMind AI</span>
+    </div>
+
+    <button class="sidebar-toggle" id="sidebar-toggle" onclick="CareerMind.toggleSidebar()" title="Toggle Sidebar">
+      ‹
+    </button>
+
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <div class="nav-item active" data-view="dashboard" onclick="CareerMind.navigate('dashboard')">
+        <span class="nav-icon">🏠</span><span class="nav-label">Dashboard</span>
+      </div>
+      <div class="nav-item" data-view="motivation" onclick="CareerMind.navigate('motivation')">
+        <span class="nav-icon">💪</span><span class="nav-label">Daily Motivation</span>
+      </div>
+
+      <div class="nav-section-label">Career Tools</div>
+      <div class="nav-item" data-view="resume" onclick="CareerMind.navigate('resume')">
+        <span class="nav-icon">📄</span><span class="nav-label">Resume Analyzer</span>
+      </div>
+      <div class="nav-item" data-view="skillgap" onclick="CareerMind.navigate('skillgap')">
+        <span class="nav-icon">🗺️</span><span class="nav-label">Skill Gap</span>
+      </div>
+      <div class="nav-item" data-view="roadmap" onclick="CareerMind.navigate('roadmap')">
+        <span class="nav-icon">📚</span><span class="nav-label">Learning Roadmap</span>
+      </div>
+      <div class="nav-item" data-view="jdanalyzer" onclick="CareerMind.navigate('jdanalyzer')">
+        <span class="nav-icon">📋</span><span class="nav-label">JD Analyzer</span>
+      </div>
+      <div class="nav-item" data-view="projects" onclick="CareerMind.navigate('projects')">
+        <span class="nav-icon">📁</span><span class="nav-label">Projects</span>
+      </div>
+
+      <div class="nav-section-label">Practice</div>
+      <div class="nav-item" data-view="interview" onclick="CareerMind.navigate('interview')">
+        <span class="nav-icon">🎤</span><span class="nav-label">Mock Interview</span>
+      </div>
+      <div class="nav-item" data-view="weeklytest" onclick="CareerMind.navigate('weeklytest')">
+        <span class="nav-icon">🧪</span><span class="nav-label">Weekly Test</span>
+      </div>
+
+      <div class="nav-section-label">Learning</div>
+      <div class="nav-item" data-view="chat" onclick="CareerMind.navigate('chat')">
+        <span class="nav-icon">💬</span><span class="nav-label">AI Mentor Chat</span>
+      </div>
+      <div class="nav-item" data-view="studyplan" onclick="CareerMind.navigate('studyplan')">
+        <span class="nav-icon">🎯</span><span class="nav-label">Study Planner</span>
+      </div>
+
+      <div class="nav-section-label">You</div>
+      <div class="nav-item" data-view="progress" onclick="CareerMind.navigate('progress')">
+        <span class="nav-icon">📈</span><span class="nav-label">My Progress</span>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-avatar" id="sidebar-avatar">A</div>
+      <div class="user-info">
+        <div class="user-name" id="sidebar-name">User</div>
+        <div class="user-role" id="sidebar-role">Target Role</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title" id="topbar-title">Dashboard</span>
+      </div>
+      <div class="topbar-right">
+        <div class="streak-badge" id="topbar-streak">🔥 0 days</div>
+        <div class="xp-badge" id="topbar-xp">⚡ 0 XP</div>
+        <button class="icon-btn" onclick="CareerMind.toggleTheme()" title="Toggle Theme" id="theme-toggle-btn">🌙</button>
+        <button class="icon-btn" onclick="CareerMind.openSettings()" title="Settings">⚙️</button>
+        <button class="icon-btn" onclick="CareerMind.logout()" title="Logout">🚪</button>
+      </div>
+    </div>
+
+    <!-- View Container -->
+    <div class="view-container" id="view-container">
+
+      <!-- ── Dashboard ── -->
+      <div class="view active" id="view-dashboard">
+        <div class="view-header">
+          <h2 id="dash-greeting">Good morning! 👋</h2>
+          <p>Here's your career progress at a glance.</p>
+        </div>
+        <div id="dashboard-content">
+          <!-- Filled by dashboard.js -->
+        </div>
+      </div>
+
+      <!-- ── Motivation ── -->
+      <div class="view" id="view-motivation">
+        <div class="view-header">
+          <h2>Daily Motivation 💪</h2>
+          <p>Start every day with purpose and energy.</p>
+        </div>
+        <div id="motivation-content"></div>
+      </div>
+
+      <!-- ── Resume Analyzer ── -->
+      <div class="view" id="view-resume">
+        <div class="view-header">
+          <h2>Resume Analyzer 📄</h2>
+          <p>Upload your resume and get AI-powered feedback tailored to your target role.</p>
+        </div>
+        <div id="resume-content"></div>
+      </div>
+
+      <!-- ── Skill Gap ── -->
+      <div class="view" id="view-skillgap">
+        <div class="view-header">
+          <h2>Skill Gap Analysis 🗺️</h2>
+          <p>Discover exactly what skills you need to land your target role.</p>
+        </div>
+        <div id="skillgap-content"></div>
+      </div>
+
+      <!-- ── Roadmap ── -->
+      <div class="view" id="view-roadmap">
+        <div class="view-header">
+          <h2>Learning Roadmap 📚</h2>
+          <p>Your personalized step-by-step path to becoming job-ready.</p>
+        </div>
+        <div id="roadmap-content"></div>
+      </div>
+
+      <!-- ── JD Analyzer ── -->
+      <div class="view" id="view-jdanalyzer">
+        <div class="view-header">
+          <h2>Job Description Analyzer 📋</h2>
+          <p>Paste any job description and see how well you match — with tailoring tips.</p>
+        </div>
+        <div id="jdanalyzer-content"></div>
+      </div>
+
+      <!-- ── Projects ── -->
+      <div class="view" id="view-projects">
+        <div class="view-header">
+          <h2>Recommended Projects 📁</h2>
+          <p>Portfolio projects that will impress recruiters for your target role.</p>
+        </div>
+        <div id="projects-content"></div>
+      </div>
+
+      <!-- ── Mock Interview ── -->
+      <div class="view" id="view-interview">
+        <div class="view-header">
+          <h2>Mock Interview Coach 🎤</h2>
+          <p>Practice with realistic AI-generated questions and get instant feedback.</p>
+        </div>
+        <div id="interview-content"></div>
+      </div>
+
+      <!-- ── Weekly Test ── -->
+      <div class="view" id="view-weeklytest">
+        <div class="view-header">
+          <h2>Weekly Personalized Test 🧪</h2>
+          <p>AI-generated quizzes based on your target role and current skill level.</p>
+        </div>
+        <div id="weeklytest-content"></div>
+      </div>
+
+      <!-- ── AI Chat ── -->
+      <div class="view" id="view-chat">
+        <div class="view-header">
+          <h2>AI Mentor Chat 💬</h2>
+          <p>Ask anything — concept explanations, career advice, interview tips, and more.</p>
+        </div>
+        <div id="chat-content"></div>
+      </div>
+
+      <!-- ── Study Planner ── -->
+      <div class="view" id="view-studyplan">
+        <div class="view-header">
+          <h2>Study Planner 🎯</h2>
+          <p>Set goals, track sessions, and stay consistent with your learning.</p>
+        </div>
+        <div id="studyplan-content"></div>
+      </div>
+
+      <!-- ── Progress ── -->
+      <div class="view" id="view-progress">
+        <div class="view-header">
+          <h2>My Progress 📈</h2>
+          <p>Your achievements, XP, badges, and learning journey.</p>
+        </div>
+        <div id="progress-content"></div>
+      </div>
+
+    </div><!-- /view-container -->
+  </div><!-- /main-content -->
+</div><!-- /app -->
+
+<!-- ════════════════════════════════════
+     MOBILE BOTTOM NAV
+════════════════════════════════════ -->
+<div class="mobile-bottom-nav" id="mobile-bottom-nav">
+  <div class="mobile-bottom-nav-inner">
+    <div class="mobile-nav-item active" id="mnav-dashboard" onclick="CareerMind.navigate('dashboard');MobileNav.setActive('dashboard')">
+      <span class="mobile-nav-icon">🏠</span>
+      <span class="mobile-nav-label">Home</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-resume" onclick="CareerMind.navigate('resume');MobileNav.setActive('resume')">
+      <span class="mobile-nav-icon">📄</span>
+      <span class="mobile-nav-label">Resume</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-chat" onclick="CareerMind.navigate('chat');MobileNav.setActive('chat')">
+      <span class="mobile-nav-icon">💬</span>
+      <span class="mobile-nav-label">AI Chat</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-interview" onclick="CareerMind.navigate('interview');MobileNav.setActive('interview')">
+      <span class="mobile-nav-icon">🎤</span>
+      <span class="mobile-nav-label">Interview</span>
+    </div>
+    <div class="mobile-nav-item" id="mnav-more" onclick="MobileNav.toggleDrawer()">
+      <span class="mobile-nav-icon">⋯</span>
+      <span class="mobile-nav-label">More</span>
+    </div>
+  </div>
+</div>
+
+<!-- Drawer Overlay -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="MobileNav.closeDrawer()"></div>
+
+<!-- More Drawer -->
+<div class="mobile-more-drawer" id="mobile-more-drawer">
+  <div class="mobile-more-drawer-header">
+    <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px">🧠 All Features</div>
+    <button class="icon-btn" onclick="MobileNav.closeDrawer()">&#x2715;</button>
+  </div>
+  <div class="mobile-drawer-grid">
+    <div class="mobile-drawer-item" onclick="CareerMind.navigate('skillgap');MobileNav.closeDrawer();MobileNav.setActive('skillgap')">
+      <div class="mobile-drawer-icon">🗺️</div>
+      <div class="mobile-drawer-label">Skill Gap</div>
+    </div>
+    <div class="mobile-drawer-item" onclick="CareerMind.navigate('roadmap');MobileNav.closeDrawer();MobileNav.setActive('roadmap')">
+      <div class="mobile-drawer-icon">📚</div>
+      <div class="mobile-drawer-label">Roadmap</div>
+    </div>
+    <div class="mobile-drawer-item" onclick="CareerMind.navigate('jdanalyzer');MobileNav.closeDrawer();MobileNav.setActive('jdanalyzer')">
+      <div class="mobile-drawer-icon">📋</div>
+      <div class="mobile-drawer-label">JD Analyzer</div>
+    </div>
+    <div class="mobile-drawer-item" onclick="CareerMind.navigate('weeklytest');MobileNav.closeDrawer();MobileNav.setActive('weeklytest')">
+      <div class="mobile-drawer-icon">🧪</div>
+      <div class="mobile-drawer-label">Weekly Test</div>
+    </div>
+    <div class="mobile-drawer-item" onclick="CareerMind.navigate('projects');MobileNav.closeDrawer();MobileNav.setActive('projects')">
+      <div class="mobile-drawer-icon">📁</div>
+      <div class="mobile-drawer-label">Projects</div>
+    </div>
+    <div class="mobile-drawer-item" onclick="CareerMind.navigate('progress');MobileNav.closeDrawer();MobileNav.setActive('progress')">
+      <div class="mobile-drawer-icon">📈</div>
+      <div class="mobile-drawer-label">Progress</div>
+    </div>
+    <div class="mobile-drawer-item" onclick="CareerMind.navigate('studyplan');MobileNav.closeDrawer();MobileNav.setActive('studyplan')">
+      <div class="mobile-drawer-icon">🎯</div>
+      <div class="mobile-drawer-label">Study Plan</div>
+    </div>
+    <div class="mobile-drawer-item" onclick="CareerMind.navigate('motivation');MobileNav.closeDrawer();MobileNav.setActive('motivation')">
+      <div class="mobile-drawer-icon">💪</div>
+      <div class="mobile-drawer-label">Motivation</div>
+    </div>
+    <div class="mobile-drawer-item" onclick="CareerMind.openSettings();MobileNav.closeDrawer()">
+      <div class="mobile-drawer-icon">⚙️</div>
+      <div class="mobile-drawer-label">Settings</div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div id="settings-modal" class="hidden" style="
+  position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:500;
+  display:flex; align-items:center; justify-content:center;
+  backdrop-filter: blur(8px);">
+  <div class="card" style="width:480px; max-width:90vw; max-height:80vh; overflow-y:auto;">
+    <div class="card-header">
+      <div class="card-title"><span>⚙️</span> Settings</div>
+      <button class="icon-btn" onclick="CareerMind.closeSettings()">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Your Name</label>
+      <input id="s-name" type="text" class="form-control" placeholder="Your name"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Target Role</label>
+      <select id="s-role" class="form-control">
+        <option value="sde">Software Development Engineer (SDE)</option>
+        <option value="web">Web Developer</option>
+        <option value="data">Data Analyst</option>
+        <option value="cloud">Cloud Engineer</option>
+        <option value="ai">AI / ML Engineer</option>
+        <option value="custom">Custom Role</option>
+      </select>
+    </div>
+    <div class="form-group" id="s-custom-role-group" style="display:none">
+      <label class="form-label">Custom Role Name</label>
+      <input id="s-custom-role" type="text" class="form-control"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Experience Level</label>
+      <select id="s-exp" class="form-control">
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="advanced">Advanced</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Current Status & Goal</label>
+      <select id="s-goal" class="form-control">
+        <option value="student">🎓 Student seeking first job</option>
+        <option value="unemployed">🔍 Actively looking for a job</option>
+        <option value="upskill">🔄 Currently employed, upskilling to switch</option>
+        <option value="grow">📈 Currently employed, growing in current role</option>
+      </select>
+    </div>
+    <div class="divider"></div>
+    <div style="display:flex; gap:var(--space-sm);">
+      <button class="btn btn-danger btn-sm" onclick="CareerMind.resetApp()">Reset All Data</button>
+      <button class="btn btn-primary btn-block" onclick="CareerMind.saveSettings()">Save Settings</button>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Confirm Modal -->
+<div id="custom-confirm-modal" class="modal hidden" style="
+  position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999;
+  display:flex; align-items:center; justify-content:center;
+  backdrop-filter: blur(8px);">
+  <div class="card" style="width:400px; max-width:90vw; padding:var(--space-2xl);">
+    <h2 id="modal-title" style="margin-bottom:var(--space-sm);font-size:20px;">Confirm Action</h2>
+    <p id="modal-message" style="color:var(--text-secondary);margin-bottom:var(--space-xl);font-size:14px;line-height:1.5;"></p>
+    <div style="display:flex; gap:var(--space-md); justify-content:flex-end;">
+      <button class="btn btn-ghost" onclick="CareerMind.closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="modal-confirm-btn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- Scripts (order matters) -->
+<script src="config.js"></script>          <!-- 0. Environment config -->
+<script src="firebase.js?v=2"></script>   <!-- 1. Firebase init + DB helpers -->
+<script src="auth.js?v=2"></script>        <!-- 2. Auth service -->
+<script src="gemini.js?v=2"></script>      <!-- 3. Gemini AI wrapper -->
+<script src="state.js?v=2"></script>       <!-- 4. Firestore-backed state -->
+<script src="modules/dashboard.js?v=2"></script>
+<script src="modules/resume.js?v=2"></script>
+<script src="modules/skillgap.js?v=2"></script>
+<script src="modules/roadmap.js?v=2"></script>
+<script src="modules/chat.js?v=2"></script>
+<script src="modules/interview.js?v=2"></script>
+<script src="modules/jdanalyzer.js?v=2"></script>
+<script src="modules/weeklytest.js?v=2"></script>
+<script src="modules/projects.js?v=2"></script>
+<script src="modules/progress.js?v=2"></script>
+<script src="modules/studyplan.js?v=2"></script>
+<script src="modules/motivation.js?v=2"></script>
+<script src="app.js?v=2"></script>         <!-- 5. Main app (last) -->
+
+<script>
+/* ══════════════════════════════════════════════
+   AUTH UI CONTROLLER — Tab switching, forms
+══════════════════════════════════════════════ */
+const AuthUI = (() => {
+  let currentTab = 'login';
+
+  function switchTab(tab) {
+    currentTab = tab;
+    const loginForm  = document.getElementById('auth-login-form');
+    const signupForm = document.getElementById('auth-signup-form');
+    const loginTab   = document.getElementById('auth-tab-login');
+    const signupTab  = document.getElementById('auth-tab-signup');
+
+    if (tab === 'login') {
+      loginForm.style.display  = 'block';
+      signupForm.style.display = 'none';
+      loginTab.style.background  = 'var(--primary)';
+      loginTab.style.color       = '#fff';
+      signupTab.style.background = 'transparent';
+      signupTab.style.color      = 'var(--text-muted)';
+    } else {
+      loginForm.style.display  = 'none';
+      signupForm.style.display = 'block';
+      signupTab.style.background = 'var(--primary)';
+      signupTab.style.color      = '#fff';
+      loginTab.style.background  = 'transparent';
+      loginTab.style.color       = 'var(--text-muted)';
+    }
+    clearError();
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('auth-error');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function clearError() {
+    const el = document.getElementById('auth-error');
+    el.style.display = 'none';
+  }
+
+  function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.disabled = loading;
+    btn.textContent = loading
+      ? (btnId === 'login-btn' ? 'Signing in...' : btnId === 'signup-btn' ? 'Creating account...' : 'Loading...')
+      : (btnId === 'login-btn' ? 'Sign In to CareerMind' : btnId === 'signup-btn' ? 'Create My Account 🚀' : 'Continue with Google');
+  }
+
+  async function login() {
+    const email    = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    if (!email || !password) { showError('Please fill in all fields.'); return; }
+    setLoading('login-btn', true);
+    clearError();
+    try {
+      await AuthService.signIn(email, password);
+      // onAuthStateChanged in app.js will handle the redirect
+    } catch (e) {
+      setLoading('login-btn', false);
+      showError(_friendlyError(e.code));
+    }
+  }
+
+  async function signup() {
+    const name     = document.getElementById('signup-name').value.trim();
+    const email    = document.getElementById('signup-email').value.trim();
+    const password = document.getElementById('signup-password').value;
+    const role     = document.getElementById('signup-role').value;
+    const exp      = document.getElementById('signup-exp').value;
+    if (!name || !email || !password) { showError('Please fill in all fields.'); return; }
+    if (password.length < 6) { showError('Password must be at least 6 characters.'); return; }
+    setLoading('signup-btn', true);
+    clearError();
+    try {
+      await AuthService.signUp(name, email, password, role, exp);
+      // onAuthStateChanged will handle the redirect
+    } catch (e) {
+      console.error("Signup Error:", e);
+      setLoading('signup-btn', false);
+      showError(_friendlyError(e.code) + ' (See console)');
+    }
+  }
+
+  async function googleSignIn() {
+    const btn = document.getElementById('auth-google-btn');
+    if (btn) { btn.disabled = true; btn.style.opacity = '0.7'; }
+    clearError();
+    try {
+      await AuthService.signInWithGoogle();
+    } catch (e) {
+      console.error("Google Sign-in Error:", e);
+      if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+      if (e.code !== 'auth/popup-closed-by-user') {
+        showError(_friendlyError(e.code) + ' (See console)');
+      }
+    }
+  }
+
+  async function forgotPassword() {
+    const email = document.getElementById('login-email').value.trim();
+    if (!email) { showError('Enter your email first, then click Forgot password.'); return; }
+    try {
+      await AuthService.resetPassword(email);
+      showError('✅ Password reset email sent! Check your inbox.');
+      document.getElementById('auth-error').style.background = 'rgba(16,185,129,0.1)';
+      document.getElementById('auth-error').style.borderColor = 'rgba(16,185,129,0.3)';
+      document.getElementById('auth-error').style.color = 'var(--success)';
+    } catch (e) {
+      showError(_friendlyError(e.code));
+    }
+  }
+
+  function _friendlyError(code) {
+    const msgs = {
+      'auth/user-not-found':       'No account found with this email.',
+      'auth/wrong-password':       'Incorrect password. Try again.',
+      'auth/email-already-in-use': 'This email is already registered. Sign in instead.',
+      'auth/weak-password':        'Password must be at least 6 characters.',
+      'auth/invalid-email':        'Invalid email address.',
+      'auth/too-many-requests':    'Too many attempts. Try again later.',
+      'auth/network-request-failed':'Network error. Check your connection.',
+      'auth/popup-blocked':        'Popup blocked. Allow popups for this site.',
+      'auth/invalid-credential':   'Invalid email or password.',
+    };
+    return msgs[code] || 'Something went wrong. Please try again.';
+  }
+
+  return { switchTab, login, signup, googleSignIn, forgotPassword };
+})();
+
+// Handle Enter key on auth forms
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    const authScreen = document.getElementById('auth-screen');
+    if (authScreen && authScreen.style.display !== 'none') {
+      const loginForm = document.getElementById('auth-login-form');
+      if (loginForm && loginForm.style.display !== 'none') AuthUI.login();
+      else AuthUI.signup();
+    }
+  }
+});
+</script>
+
+</body>
+</html>
+
