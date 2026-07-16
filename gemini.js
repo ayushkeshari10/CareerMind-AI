@@ -30,11 +30,16 @@ const Gemini = (() => {
   }
 
   /** One-shot text generation */
-  async function generate(prompt, systemPrompt = '', temperature = 0.7) {
+  async function generate(prompt, systemPrompt = '', temperature = 0.7, forceJSON = false) {
 
     const body = {
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: { temperature, maxOutputTokens: 8192, topP: 0.9 }
+      generationConfig: { 
+        temperature, 
+        maxOutputTokens: 8192, 
+        topP: 0.9,
+        ...(forceJSON ? { responseMimeType: 'application/json' } : {})
+      }
     };
     if (systemPrompt) {
       body.system_instruction = { parts: [{ text: systemPrompt }] };
@@ -61,16 +66,20 @@ const Gemini = (() => {
   /** Generate and parse JSON response */
   async function generateJSON(prompt, systemPrompt = '') {
     const jsonPrompt = prompt + '\n\nIMPORTANT: Respond ONLY with valid JSON. No markdown, no code blocks, no explanation. Just the raw JSON object.';
-    const text = await generate(jsonPrompt, systemPrompt, 0.4);
-    // Strip markdown code fences if present
+    const text = await generate(jsonPrompt, systemPrompt, 0.4, true); // true forces JSON mode
+    
+    // Strip markdown code fences if present (fallback just in case)
     const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim();
     try {
       return JSON.parse(cleaned);
     } catch (e) {
-      // Try to extract JSON from response
-      const match = cleaned.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
-      if (match) return JSON.parse(match[0]);
-      throw new Error('Failed to parse AI response as JSON. Please try again.');
+      try {
+        const match = cleaned.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+        if (match) return JSON.parse(match[0]);
+      } catch (innerError) {
+        console.error('Failed to parse AI JSON:', innerError, cleaned);
+      }
+      throw new Error('The AI generated an invalid response format. Please try again.');
     }
   }
 
