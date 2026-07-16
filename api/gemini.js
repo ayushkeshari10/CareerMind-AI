@@ -4,6 +4,7 @@ export const config = {
 
 export default async function handler(req) {
   if (req.method !== 'POST') {
+    console.error(`Method not allowed: ${req.method}`);
     return new Response(JSON.stringify({ error: 'Method Not Allowed' }), {
       status: 405,
       headers: { 'Content-Type': 'application/json' },
@@ -18,6 +19,7 @@ export default async function handler(req) {
     const apiKey = process.env.GEMINI_API_KEY;
     
     if (!apiKey) {
+      console.error('API KEY IS MISSING IN VERCEL ENVIRONMENT VARIABLES!');
       return new Response(JSON.stringify({ error: 'Server misconfiguration: GEMINI_API_KEY missing' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
@@ -27,17 +29,24 @@ export default async function handler(req) {
     const payload = await req.json();
 
     // Construct the endpoint based on the action
-    const geminiBase = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash';
+    const geminiBase = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash';
     const endpoint = action === 'stream' 
       ? `${geminiBase}:streamGenerateContent?key=${apiKey}&alt=sse` 
       : `${geminiBase}:generateContent?key=${apiKey}`;
 
     // Forward the request to Google
+    console.log(`Sending request to Google API (Action: ${action})`);
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
+
+    if (!response.ok) {
+      console.error(`Google API Error: ${response.status} ${response.statusText}`);
+    } else {
+      console.log('Google API request successful!');
+    }
 
     // If streaming, return the readable stream directly
     if (action === 'stream') {
