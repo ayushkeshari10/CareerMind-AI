@@ -138,6 +138,21 @@ const FirebaseDB = {
     const snap = await db.collection('tests').where('uid', '==', uid).orderBy('createdAt', 'desc').limit(20).get();
     return snap.docs.map(d => d.data());
   },
+
+  // ── Reset All Data ───────────────────────────────────────
+  async resetUserData(uid) {
+    const collections = ['users', 'resumes', 'skillgaps', 'roadmaps', 'progress', 'studyplans', 'motivation'];
+    for (const col of collections) {
+      try {
+        await db.collection(col).doc(uid).delete();
+      } catch (e) {
+        console.error(`Failed to delete ${col} for ${uid}`, e);
+      }
+    }
+    await this.clearChatHistory(uid);
+    // Note: We don't delete interviews/tests sub-collections to save operations, 
+    // or we can just leave them as historical data since they aren't loaded in the main state.
+  }
 };
 
 console.log('🔥 Firebase initialized');

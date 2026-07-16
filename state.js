@@ -237,6 +237,24 @@ const AppState = (() => {
     _pendingSections.clear();
   }
 
+  // ── Hard Reset (Wipe all data) ───────────────────────────────
+  async function reset() {
+    if (_uid) {
+      try {
+        await FirebaseDB.resetUserData(_uid);
+      } catch (e) {
+        console.error('Failed to reset Firebase data', e);
+      }
+    }
+    
+    // Clear local state, keeping just the basic empty structure
+    _state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+    
+    // Clear localStorage items managed by the app
+    localStorage.removeItem('app_theme');
+    localStorage.removeItem('sidebar_collapsed');
+  }
+
   // ── Helper: Role display name ────────────────────────────────
   function getRoleDisplay(role, customRole) {
     const names = {
@@ -256,6 +274,7 @@ const AppState = (() => {
     addInterviewSession,
     addTestResult,
     clearLocal,
+    reset,
     getRoleDisplay,
     initForUser,
     get uid()    { return _uid; },
