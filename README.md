@@ -1,6 +1,6 @@
 # 🧠 CareerMind AI
 
-CareerMind AI is a highly advanced, full-stack AI career mentor designed to help job seekers, students, and professionals upskill and land their dream jobs. By leveraging the bleeding-edge **Google Gemini 3.5 Flash** model and **Firebase**, it acts as a personalized career coach, resume reviewer, and technical interviewer.
+CareerMind AI is a highly advanced, full-stack AI career mentor designed to help job seekers, students, and professionals upskill and land their dream jobs. By leveraging the highly scalable **Google Gemini 3.1 Flash-Lite** model and **Firebase**, it acts as a personalized career coach, resume reviewer, and technical interviewer.
 
 ![CareerMind Banner](https://i.imgur.com/H1G6a33.png) <!-- Placeholder banner -->
 
@@ -20,7 +20,7 @@ CareerMind AI is a highly advanced, full-stack AI career mentor designed to help
 - **Design System**: Custom CSS with CSS Variables, Flexbox/Grid, and Keyframe Animations
 - **Authentication**: Firebase Authentication (Email/Password & Google OAuth)
 - **Database**: Firebase Firestore (NoSQL for user profiles, progress, and chat history)
-- **AI Integration**: Direct REST API integration with Google Gemini 3.5 Flash (`generativelanguage.googleapis.com`)
+- **AI Integration**: Serverless REST API integration with Google Gemini 3.1 Flash-Lite via Vercel Functions (`/api/gemini`)
 - **Libraries**:
   - `Chart.js` for skill radar charts.
   - `PDF.js` for local, client-side Resume parsing.
@@ -34,26 +34,22 @@ CareerMind AI is a highly advanced, full-stack AI career mentor designed to help
    cd careermind-ai
    ```
 
-2. **Configure API Keys**:
-   Open `config.js` and add your Google Gemini API key:
-   ```javascript
-   const ENV = {
-     GEMINI_API_KEY: "AIzaSyYourGeminiKeyHere...",
-   };
+3. **Configure API Keys (Environment Variables)**:
+   This app uses Vercel Serverless Functions to securely communicate with the Gemini API.
+   Create a `.env` file in the root directory:
+   ```env
+   GEMINI_API_KEY=your_gemini_api_key_here
    ```
    Open `firebase.js` and ensure your Firebase config is correct.
 
-3. **Run a Local Server**:
-   Because of CORS and ES module restrictions, you must serve the files through a local web server (do not just open `index.html` directly in the browser).
+4. **Run a Local Server**:
+   Because the app relies on Vercel Functions (`/api/gemini`), you must use the Vercel CLI to run the app locally.
    ```bash
-   # Using Python
-   python -m http.server 3000
-   
-   # Or using Node.js (npx)
-   npx serve -l 3000
+   npm i -g vercel
+   vercel dev
    ```
 
-4. **Open the App**:
+5. **Open the App**:
    Navigate to `http://localhost:3000` in your web browser.
 
 ## 🛡️ Privacy & Security
