@@ -29,7 +29,7 @@ export default async function handler(req) {
     const payload = await req.json();
 
     // Construct the endpoint based on the action
-    const geminiBase = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest';
+    const geminiBase = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash';
     const endpoint = action === 'stream' 
       ? `${geminiBase}:streamGenerateContent?key=${apiKey}&alt=sse` 
       : `${geminiBase}:generateContent?key=${apiKey}`;
