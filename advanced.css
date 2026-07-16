@@ -52,27 +52,29 @@
   100% { background-position: 0% 50%; }
 }
 
-/* ── Sidebar Floating Pill Upgrade ── */
-.sidebar {
-  position: fixed !important;
-  top: var(--space-md) !important;
-  bottom: var(--space-md) !important;
-  left: var(--space-md) !important;
-  height: calc(100vh - (var(--space-md) * 2)) !important;
-  border-radius: var(--radius-xl) !important;
-  border: 1px solid var(--glass-border) !important;
-  backdrop-filter: blur(24px) !important;
-  box-shadow: var(--shadow) !important;
-  background: var(--glass) !important;
-}
+/* ── Sidebar Floating Pill Upgrade (Desktop Only) ── */
+@media (min-width: 769px) {
+  .sidebar {
+    position: fixed !important;
+    top: var(--space-md) !important;
+    bottom: var(--space-md) !important;
+    left: var(--space-md) !important;
+    height: calc(100vh - (var(--space-md) * 2)) !important;
+    border-radius: var(--radius-xl) !important;
+    border: 1px solid var(--glass-border) !important;
+    backdrop-filter: blur(24px) !important;
+    box-shadow: var(--shadow) !important;
+    background: var(--glass) !important;
+  }
 
-.main-content {
-  margin-left: calc(var(--sidebar-width) + var(--space-md) + var(--space-lg)) !important;
-  width: calc(100% - var(--sidebar-width) - var(--space-md) - var(--space-lg)) !important;
-}
-.sidebar.collapsed ~ .main-content {
-  margin-left: calc(var(--sidebar-collapsed) + var(--space-md) + var(--space-lg)) !important;
-  width: calc(100% - var(--sidebar-collapsed) - var(--space-md) - var(--space-lg)) !important;
+  .main-content {
+    margin-left: calc(var(--sidebar-width) + var(--space-md) + var(--space-lg)) !important;
+    width: calc(100% - var(--sidebar-width) - var(--space-md) - var(--space-lg)) !important;
+  }
+  .sidebar.collapsed ~ .main-content {
+    margin-left: calc(var(--sidebar-collapsed) + var(--space-md) + var(--space-lg)) !important;
+    width: calc(100% - var(--sidebar-collapsed) - var(--space-md) - var(--space-lg)) !important;
+  }
 }
 
 /* ── Card Lift Upgrade ── */
