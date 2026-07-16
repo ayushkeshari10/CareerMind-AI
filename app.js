@@ -57,6 +57,10 @@ const CareerMind = (() => {
     // Update topbar title
     document.getElementById('topbar-title').textContent = viewTitles[viewId];
 
+    // Close mobile sidebar if open
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) sidebar.classList.remove('mobile-open');
+
     // Scroll to top
     document.getElementById('view-container').scrollTop = 0;
 
