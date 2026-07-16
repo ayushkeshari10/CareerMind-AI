@@ -348,14 +348,7 @@ const CareerMind = (() => {
     // ── Browser History & Back Button ────────────────────────
     window.addEventListener('popstate', (e) => {
       const state = e.state;
-      if (state && state.isBase) {
-        // User pressed back on the first screen (trying to exit)
-        confirmAction('Exit CareerMind?', 'Are you sure you want to exit the app?', 'Exit', () => {
-          window.history.go(-2); // Skip the base state and leave
-        });
-        // Push state forward again so they stay in the app while the modal is open
-        window.history.pushState({ view: currentView }, '', `#${currentView}`);
-      } else if (state && state.view) {
+      if (state && state.view) {
         // User navigated back to a previous section
         navigate(state.view, false);
       }
@@ -393,9 +386,10 @@ const CareerMind = (() => {
         const hashView = window.location.hash.replace('#', '');
         const startView = viewTitles[hashView] ? hashView : 'dashboard';
         
-        // Setup initial history state to prevent immediate exit on back button
-        window.history.replaceState({ isBase: true }, '', window.location.pathname);
-        navigate(startView, true);
+        // Setup initial history state (replace) so back button exits when on first page
+        const startUrl = startView === 'dashboard' ? window.location.pathname : `#${startView}`;
+        window.history.replaceState({ view: startView }, '', startUrl);
+        navigate(startView, false);
       } else {
         // ── NOT LOGGED IN ──────────────────────────────────
         appEl.classList.add('hidden');
