@@ -5,6 +5,29 @@
 
 const Gemini = (() => {
   const BASE = '/api/gemini';
+  async function _fetchWithRetry(url, options, maxRetries = 2) {
+    for (let i = 0; i < maxRetries; i++) {
+      const resp = await fetch(url, options);
+      if (resp.status === 429) {
+        const err = await resp.clone().json().catch(() => ({}));
+        const msg = err?.error?.message || '';
+        
+        let delayMs = 15000; // default 15s
+        const match = msg.match(/retry in ([\d\.]+)s/);
+        if (match) delayMs = (parseFloat(match[1]) * 1000) + 1000; // Add 1s buffer
+        
+        console.warn(`[Gemini] 429 Quota Exceeded. Retrying in ${Math.round(delayMs/1000)}s...`);
+        if (typeof CareerMind !== 'undefined' && i === 0) {
+          CareerMind.toast(`AI is warming up. Retrying in ${Math.round(delayMs/1000)}s...`, 'info');
+        }
+        
+        await new Promise(r => setTimeout(r, delayMs));
+        continue;
+      }
+      return resp;
+    }
+    return fetch(url, options);
+  }
 
   /** One-shot text generation */
   async function generate(prompt, systemPrompt = '', temperature = 0.7) {
@@ -17,7 +40,7 @@ const Gemini = (() => {
       body.system_instruction = { parts: [{ text: systemPrompt }] };
     }
 
-    const resp = await fetch(`${BASE}?action=generate`, {
+    const resp = await _fetchWithRetry(`${BASE}?action=generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
@@ -62,7 +85,7 @@ const Gemini = (() => {
       body.system_instruction = { parts: [{ text: systemPrompt }] };
     }
 
-    const resp = await fetch(`${BASE}?action=stream`, {
+    const resp = await _fetchWithRetry(`${BASE}?action=stream`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
