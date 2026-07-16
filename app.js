@@ -40,8 +40,12 @@ const CareerMind = (() => {
   let sidebarCollapsed = false;
 
   // ── Navigation ───────────────────────────────────────────
-  function navigate(viewId) {
+  function navigate(viewId, pushHistory = true) {
     if (!viewTitles[viewId]) return;
+
+    if (pushHistory) {
+      window.history.pushState({ view: viewId }, '', `#${viewId}`);
+    }
 
     // Hide current view
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -341,6 +345,22 @@ const CareerMind = (() => {
     // Initialize lucide icons
     if (window.lucide) lucide.createIcons();
 
+    // ── Browser History & Back Button ────────────────────────
+    window.addEventListener('popstate', (e) => {
+      const state = e.state;
+      if (state && state.isBase) {
+        // User pressed back on the first screen (trying to exit)
+        confirmAction('Exit CareerMind?', 'Are you sure you want to exit the app?', 'Exit', () => {
+          window.history.go(-2); // Skip the base state and leave
+        });
+        // Push state forward again so they stay in the app while the modal is open
+        window.history.pushState({ view: currentView }, '', `#${currentView}`);
+      } else if (state && state.view) {
+        // User navigated back to a previous section
+        navigate(state.view, false);
+      }
+    });
+
     // Show loading screen while Firebase checks auth
     const loadingScreen = document.getElementById('loading-screen');
     const authScreen    = document.getElementById('auth-screen');
@@ -369,7 +389,13 @@ const CareerMind = (() => {
         _updateUserUI();
         updateTopbar();
 
-        navigate('dashboard');
+        // Handle URL Hash for Deep Linking and Browser History
+        const hashView = window.location.hash.replace('#', '');
+        const startView = viewTitles[hashView] ? hashView : 'dashboard';
+        
+        // Setup initial history state to prevent immediate exit on back button
+        window.history.replaceState({ isBase: true }, '', window.location.pathname);
+        navigate(startView, true);
       } else {
         // ── NOT LOGGED IN ──────────────────────────────────
         appEl.classList.add('hidden');
