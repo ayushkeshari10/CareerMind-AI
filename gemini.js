@@ -4,16 +4,10 @@
  */
 
 const Gemini = (() => {
-  const BASE = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash';
-
-  function getKey() {
-    return typeof ENV !== 'undefined' ? ENV.GEMINI_API_KEY : '';
-  }
+  const BASE = '/api/gemini';
 
   /** One-shot text generation */
   async function generate(prompt, systemPrompt = '', temperature = 0.7) {
-    const key = getKey();
-    if (!key || key.includes('YOUR_')) throw new Error('API Key missing or invalid in config.js');
 
     const body = {
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -23,7 +17,7 @@ const Gemini = (() => {
       body.system_instruction = { parts: [{ text: systemPrompt }] };
     }
 
-    const resp = await fetch(`${BASE}:generateContent?key=${key}`, {
+    const resp = await fetch(`${BASE}?action=generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
@@ -59,8 +53,6 @@ const Gemini = (() => {
 
   /** Streaming text generation — yields chunks */
   async function* stream(messages, systemPrompt = '') {
-    const key = getKey();
-    if (!key || key.includes('YOUR_')) throw new Error('API Key missing or invalid in config.js');
 
     const body = {
       contents: messages,
@@ -70,7 +62,7 @@ const Gemini = (() => {
       body.system_instruction = { parts: [{ text: systemPrompt }] };
     }
 
-    const resp = await fetch(`${BASE}:streamGenerateContent?key=${key}&alt=sse`, {
+    const resp = await fetch(`${BASE}?action=stream`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
