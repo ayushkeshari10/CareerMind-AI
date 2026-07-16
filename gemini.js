@@ -64,23 +64,35 @@ const Gemini = (() => {
   }
 
   /** Generate and parse JSON response */
-  async function generateJSON(prompt, systemPrompt = '') {
-    const jsonPrompt = prompt + '\n\nIMPORTANT: Respond ONLY with valid JSON. No markdown, no code blocks, no explanation. Just the raw JSON object.';
-    const text = await generate(jsonPrompt, systemPrompt, 0.4, true); // true forces JSON mode
+  async function generateJSON(prompt, systemPrompt = '', maxRetries = 2) {
+    const jsonPrompt = prompt + '\n\nIMPORTANT: Respond ONLY with valid JSON. No markdown, no code blocks, no explanation. Just the raw JSON object. Do not include trailing commas.';
     
-    // Strip markdown code fences if present (fallback just in case)
-    const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim();
-    try {
-      return JSON.parse(cleaned);
-    } catch (e) {
+    let lastError = null;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
-        const match = cleaned.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
-        if (match) return JSON.parse(match[0]);
-      } catch (innerError) {
-        console.error('Failed to parse AI JSON:', innerError, cleaned);
+        // Use a slightly higher temperature on retries to avoid repeating the exact same syntax error
+        const temp = attempt === 0 ? 0.4 : 0.7;
+        const text = await generate(jsonPrompt, systemPrompt, temp, true);
+        
+        // Strip markdown code fences if present
+        const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim();
+        
+        try {
+          return JSON.parse(cleaned);
+        } catch (e) {
+          // Try to extract JSON from response
+          const match = cleaned.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+          if (match) return JSON.parse(match[0]);
+          throw e; // throw to trigger retry
+        }
+      } catch (e) {
+        lastError = e;
+        console.warn(`[Gemini] JSON parse failed on attempt ${attempt + 1}. Retrying...`, e);
       }
-      throw new Error('The AI generated an invalid response format. Please try again.');
     }
+    
+    console.error('Failed to parse AI JSON after retries:', lastError);
+    throw new Error('The AI generated an invalid response format. Please try again.');
   }
 
   /** Streaming text generation — yields chunks */
